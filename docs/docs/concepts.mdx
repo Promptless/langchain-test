@@ -448,7 +448,7 @@ That means there are two different axes along which you can customize your text 
 1. How the text is split
 2. How the chunk size is measured
 
-LangChain now includes an `ExperimentalMarkdownSyntaxTextSplitter` that retains the original whitespace and formatting of Markdown text while extracting structured metadata such as headers and code blocks. This splitter is particularly useful for maintaining the structure of Markdown documents, allowing for more flexible manipulation of the resulting document sections. It also supports splitting on horizontal rules and can be customized with specific headers to split on.
+LangChain now includes an `ExperimentalMarkdownSyntaxTextSplitter` which is designed to handle Markdown syntax while preserving the original whitespace and formatting. This splitter extracts structured metadata such as headers and code blocks, and allows for customization of headers for splitting. It is particularly useful for maintaining the structure of Markdown documents, including code blocks and horizontal rules.
 
 For specifics on how to use text splitters, see the [relevant how-to guides here](/docs/how_to/#text-splitters).
 ### Embedding models
@@ -1352,6 +1352,7 @@ Table columns:
 - **Splits On**: How this text splitter splits text
 - **Adds Metadata**: Whether or not this text splitter adds metadata about where each chunk came from.
 - **Description**: Description of the splitter, including recommendation on when to use it.
+
 
 | Name     | Classes                                                                                                                                                                                                             | Splits On                                                   | Adds Metadata | Description                                                                                                                                                                                                                                                                  |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
