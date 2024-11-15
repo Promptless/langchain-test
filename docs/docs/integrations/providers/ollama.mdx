@@ -70,4 +70,32 @@ from langchain_community.embeddings import OllamaEmbeddings
 
 See the notebook example [here](/docs/integrations/text_embedding/ollama).
 
+## Voice Input Support
 
+### Voice-Enabled Applications
+
+LangChain's Ollama models now support voice input, enabling voice-enabled applications such as virtual assistants and voice-controlled systems.
+
+#### Speech to Text Conversion
+
+The `SpeechToTextConverter` class allows for converting audio input to text, using the 'whisper' engine for speech recognition.
+
+```python
+from langchain_ollama.voice import SpeechToTextConverter
+
+stt_converter = SpeechToTextConverter(engine='whisper')
+text = stt_converter.convert(audio_input)
+```
+
+#### Voice Input Chain
+
+The `VoiceInputChain` class integrates the speech-to-text component with existing language model chains, allowing for seamless audio input processing.
+
+```python
+from langchain_ollama.voice import VoiceInputChain
+
+voice_chain = VoiceInputChain(stt_converter=stt_converter, llm_chain=ollama_chain)
+output = voice_chain.run(audio_input)
+```
+
+See the notebook example [here](/docs/integrations/voice_input/ollama).
