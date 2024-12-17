@@ -1,5 +1,4 @@
 """Test map_rerank parser"""
-
 import pytest
 
 from langchain.chains.question_answering.map_rerank_prompt import output_parser

@@ -1,5 +1,4 @@
 """Unittests for langchain.agents.chat package."""
-
 from typing import Tuple
 
 from langchain_core.agents import AgentAction

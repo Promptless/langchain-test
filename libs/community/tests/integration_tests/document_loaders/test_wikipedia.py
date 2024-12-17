@@ -1,5 +1,4 @@
 """Integration test for Wikipedia Document Loader."""
-
 from typing import List
 
 from langchain_core.documents import Document

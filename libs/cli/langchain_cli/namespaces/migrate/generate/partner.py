@@ -1,5 +1,4 @@
 """Generate migrations for partner packages."""
-
 import importlib
 from typing import List, Tuple
 

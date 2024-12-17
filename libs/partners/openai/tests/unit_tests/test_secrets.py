@@ -2,7 +2,7 @@ from typing import Type, cast
 
 import pytest
 from langchain_core.load import dumpd
-from pydantic import SecretStr
+from langchain_core.pydantic_v1 import SecretStr
 from pytest import CaptureFixture, MonkeyPatch
 
 from langchain_openai import (
@@ -16,28 +16,28 @@ from langchain_openai import (
 
 
 def test_chat_openai_secrets() -> None:
-    o = ChatOpenAI(openai_api_key="foo")  # type: ignore[call-arg]
+    o = ChatOpenAI(openai_api_key="foo")
     s = str(o)
     assert "foo" not in s
 
 
 def test_openai_secrets() -> None:
-    o = OpenAI(openai_api_key="foo")  # type: ignore[call-arg]
+    o = OpenAI(openai_api_key="foo")
     s = str(o)
     assert "foo" not in s
 
 
 def test_openai_embeddings_secrets() -> None:
-    o = OpenAIEmbeddings(openai_api_key="foo")  # type: ignore[call-arg]
+    o = OpenAIEmbeddings(openai_api_key="foo")
     s = str(o)
     assert "foo" not in s
 
 
 def test_azure_chat_openai_secrets() -> None:
-    o = AzureChatOpenAI(  # type: ignore[call-arg]
+    o = AzureChatOpenAI(
         openai_api_key="foo1",
         azure_endpoint="endpoint",
-        azure_ad_token="foo2",  # type: ignore[arg-type]
+        azure_ad_token="foo2",
         api_version="version",
     )
     s = str(o)
@@ -46,10 +46,10 @@ def test_azure_chat_openai_secrets() -> None:
 
 
 def test_azure_openai_secrets() -> None:
-    o = AzureOpenAI(  # type: ignore[call-arg]
+    o = AzureOpenAI(
         openai_api_key="foo1",
         azure_endpoint="endpoint",
-        azure_ad_token="foo2",  # type: ignore[arg-type]
+        azure_ad_token="foo2",
         api_version="version",
     )
     s = str(o)
@@ -58,10 +58,10 @@ def test_azure_openai_secrets() -> None:
 
 
 def test_azure_openai_embeddings_secrets() -> None:
-    o = AzureOpenAIEmbeddings(  # type: ignore[call-arg]
+    o = AzureOpenAIEmbeddings(
         openai_api_key="foo1",
         azure_endpoint="endpoint",
-        azure_ad_token="foo2",  # type: ignore[arg-type]
+        azure_ad_token="foo2",
         api_version="version",
     )
     s = str(o)
@@ -93,7 +93,10 @@ def test_azure_openai_api_key_masked_when_passed_from_env(
     """Test that the API key is masked when passed from an environment variable."""
     monkeypatch.setenv("AZURE_OPENAI_API_KEY", "secret-api-key")
     monkeypatch.setenv("AZURE_OPENAI_AD_TOKEN", "secret-ad-token")
-    model = model_class(azure_endpoint="endpoint", api_version="version")
+    model = model_class(
+        azure_endpoint="endpoint",
+        api_version="version",
+    )
     print(model.openai_api_key, end="")  # noqa: T201
     captured = capsys.readouterr()
 
@@ -109,7 +112,8 @@ def test_azure_openai_api_key_masked_when_passed_from_env(
     "model_class", [AzureChatOpenAI, AzureOpenAI, AzureOpenAIEmbeddings]
 )
 def test_azure_openai_api_key_masked_when_passed_via_constructor(
-    model_class: Type, capsys: CaptureFixture
+    model_class: Type,
+    capsys: CaptureFixture,
 ) -> None:
     """Test that the API key is masked when passed via the constructor."""
     model = model_class(
@@ -168,7 +172,8 @@ def test_openai_api_key_masked_when_passed_from_env(
 
 @pytest.mark.parametrize("model_class", [ChatOpenAI, OpenAI, OpenAIEmbeddings])
 def test_openai_api_key_masked_when_passed_via_constructor(
-    model_class: Type, capsys: CaptureFixture
+    model_class: Type,
+    capsys: CaptureFixture,
 ) -> None:
     """Test that the API key is masked when passed via the constructor."""
     model = model_class(openai_api_key="secret-api-key")

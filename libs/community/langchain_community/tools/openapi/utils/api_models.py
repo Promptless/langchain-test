@@ -1,5 +1,4 @@
 """Pydantic models for parsing an OpenAPI spec."""
-
 from __future__ import annotations
 
 import logging
@@ -16,7 +15,7 @@ from typing import (
     Union,
 )
 
-from pydantic import BaseModel, Field
+from langchain_core.pydantic_v1 import BaseModel, Field
 
 from langchain_community.tools.openapi.utils.openapi_utils import HTTPVerb, OpenAPISpec
 

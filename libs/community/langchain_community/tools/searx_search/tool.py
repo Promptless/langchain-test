@@ -1,13 +1,12 @@
 """Tool for the SearxNG search API."""
-
 from typing import Optional, Type
 
 from langchain_core.callbacks import (
     AsyncCallbackManagerForToolRun,
     CallbackManagerForToolRun,
 )
+from langchain_core.pydantic_v1 import BaseModel, Extra, Field
 from langchain_core.tools import BaseTool
-from pydantic import BaseModel, ConfigDict, Field
 
 from langchain_community.utilities.searx_search import SearxSearchWrapper
 
@@ -18,7 +17,7 @@ class SearxSearchQueryInput(BaseModel):
     query: str = Field(description="query to look up on searx")
 
 
-class SearxSearchRun(BaseTool):  # type: ignore[override, override]
+class SearxSearchRun(BaseTool):
     """Tool that queries a Searx instance."""
 
     name: str = "searx_search"
@@ -48,7 +47,7 @@ class SearxSearchRun(BaseTool):  # type: ignore[override, override]
         return await self.wrapper.arun(query, **self.kwargs)
 
 
-class SearxSearchResults(BaseTool):  # type: ignore[override, override]
+class SearxSearchResults(BaseTool):
     """Tool that queries a Searx instance and gets back json."""
 
     name: str = "searx_search_results"
@@ -60,11 +59,11 @@ class SearxSearchResults(BaseTool):  # type: ignore[override, override]
     wrapper: SearxSearchWrapper
     num_results: int = 4
     kwargs: dict = Field(default_factory=dict)
-    args_schema: Type[BaseModel] = SearxSearchQueryInput
 
-    model_config = ConfigDict(
-        extra="allow",
-    )
+    class Config:
+        """Pydantic config."""
+
+        extra = Extra.allow
 
     def _run(
         self,

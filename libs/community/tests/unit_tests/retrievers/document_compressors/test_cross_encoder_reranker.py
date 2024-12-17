@@ -1,5 +1,4 @@
 """Integration test for CrossEncoderReranker."""
-
 from typing import List
 
 import pytest

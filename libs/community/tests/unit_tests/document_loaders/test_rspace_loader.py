@@ -4,9 +4,9 @@ from langchain_community.document_loaders.rspace import RSpaceLoader
 
 
 class TestRSpaceLoader(unittest.TestCase):
-    url: str = "https://community.researchspace.com"
-    api_key: str = "myapikey"
-    global_id: str = "SD12345"
+    url = "https://community.researchspace.com"
+    api_key = "myapikey"
+    global_id = "SD12345"
 
     def test_valid_arguments(self) -> None:
         loader = RSpaceLoader(

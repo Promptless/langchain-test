@@ -1,6 +1,5 @@
 # flake8: noqa
 """Test rwkv wrapper."""
-
 import os
 from urllib.request import urlretrieve
 

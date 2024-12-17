@@ -7,7 +7,6 @@ EXPECTED_ALL = [
     "AzureOpenAIEmbeddings",
     "BaichuanTextEmbeddings",
     "ClarifaiEmbeddings",
-    "ClovaXEmbeddings",
     "CohereEmbeddings",
     "DatabricksEmbeddings",
     "ElasticsearchEmbeddings",
@@ -79,9 +78,7 @@ EXPECTED_ALL = [
     "OpenVINOEmbeddings",
     "OpenVINOBgeEmbeddings",
     "SolarEmbeddings",
-    "AscendEmbeddings",
     "ZhipuAIEmbeddings",
-    "TextEmbedEmbeddings",
 ]
 
 

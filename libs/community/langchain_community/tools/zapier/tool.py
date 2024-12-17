@@ -67,7 +67,6 @@ toolkit = ZapierToolkit.from_zapier_nla_wrapper(zapier)
 ```
 
 """
-
 from typing import Any, Dict, Optional
 
 from langchain_core._api import warn_deprecated
@@ -75,15 +74,14 @@ from langchain_core.callbacks import (
     AsyncCallbackManagerForToolRun,
     CallbackManagerForToolRun,
 )
+from langchain_core.pydantic_v1 import Field, root_validator
 from langchain_core.tools import BaseTool
-from langchain_core.utils import pre_init
-from pydantic import Field
 
 from langchain_community.tools.zapier.prompt import BASE_ZAPIER_TOOL_PROMPT
 from langchain_community.utilities.zapier import ZapierNLAWrapper
 
 
-class ZapierNLARunAction(BaseTool):  # type: ignore[override]
+class ZapierNLARunAction(BaseTool):
     """Tool to run a specific action from the user's exposed actions.
 
     Params:
@@ -106,7 +104,7 @@ class ZapierNLARunAction(BaseTool):  # type: ignore[override]
     name: str = ""
     description: str = ""
 
-    @pre_init
+    @root_validator
     def set_name_description(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         zapier_description = values["zapier_description"]
         params_schema = values["params_schema"]
@@ -169,7 +167,7 @@ ZapierNLARunAction.__doc__ = (
 # other useful actions
 
 
-class ZapierNLAListActions(BaseTool):  # type: ignore[override]
+class ZapierNLAListActions(BaseTool):
     """Tool to list all exposed actions for the user."""
 
     name: str = "ZapierNLA_list_actions"

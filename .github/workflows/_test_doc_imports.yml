@@ -2,11 +2,6 @@ name: test_doc_imports
 
 on:
   workflow_call:
-    inputs:
-      python-version:
-        required: true
-        type: string
-        description: "Python version to use"
 
 env:
   POETRY_VERSION: "1.7.1"
@@ -14,14 +9,18 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: "check doc imports #${{ inputs.python-version }}"
+    strategy:
+      matrix:
+        python-version:
+          - "3.12"
+    name: "check doc imports #${{ matrix.python-version }}"
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ inputs.python-version }} + Poetry ${{ env.POETRY_VERSION }}
+      - name: Set up Python ${{ matrix.python-version }} + Poetry ${{ env.POETRY_VERSION }}
         uses: "./.github/actions/poetry_setup"
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: ${{ matrix.python-version }}
           poetry-version: ${{ env.POETRY_VERSION }}
           cache-key: core
 
@@ -31,7 +30,7 @@ jobs:
 
       - name: Install langchain editable
         run: |
-          poetry run pip install langchain-experimental -e libs/core libs/langchain libs/community
+          poetry run pip install -e libs/core libs/langchain libs/community libs/experimental
 
       - name: Check doc imports
         shell: bash

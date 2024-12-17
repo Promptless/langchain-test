@@ -2,8 +2,7 @@ from enum import Enum
 from typing import Any, Dict, Iterator, List, Mapping, Optional
 
 from langchain_core.embeddings import Embeddings
-from langchain_core.utils import pre_init
-from pydantic import BaseModel, ConfigDict
+from langchain_core.pydantic_v1 import BaseModel, Extra, root_validator
 
 CUSTOM_ENDPOINT_PREFIX = "ocid1.generativeaiendpoint"
 
@@ -46,9 +45,9 @@ class OCIGenAIEmbeddings(BaseModel, Embeddings):
             )
     """
 
-    client: Any = None  #: :meta private:
+    client: Any  #: :meta private:
 
-    service_models: Any = None  #: :meta private:
+    service_models: Any  #: :meta private:
 
     auth_type: Optional[str] = "API_KEY"
     """Authentication type, could be 
@@ -66,16 +65,16 @@ class OCIGenAIEmbeddings(BaseModel, Embeddings):
     If not specified , DEFAULT will be used 
     """
 
-    model_id: Optional[str] = None
+    model_id: str = None  # type: ignore[assignment]
     """Id of the model to call, e.g., cohere.embed-english-light-v2.0"""
 
     model_kwargs: Optional[Dict] = None
     """Keyword arguments to pass to the model"""
 
-    service_endpoint: Optional[str] = None
+    service_endpoint: str = None  # type: ignore[assignment]
     """service endpoint url"""
 
-    compartment_id: Optional[str] = None
+    compartment_id: str = None  # type: ignore[assignment]
     """OCID of compartment"""
 
     truncate: Optional[str] = "END"
@@ -85,9 +84,12 @@ class OCIGenAIEmbeddings(BaseModel, Embeddings):
     """Batch size of OCI GenAI embedding requests. OCI GenAI may handle up to 96 texts
      per request"""
 
-    model_config = ConfigDict(extra="forbid", protected_namespaces=())
+    class Config:
+        """Configuration for this pydantic object."""
 
-    @pre_init
+        extra = Extra.forbid
+
+    @root_validator()
     def validate_environment(cls, values: Dict) -> Dict:  # pylint: disable=no-self-argument
         """Validate that OCI config and python package exists in environment."""
 
@@ -130,13 +132,13 @@ class OCIGenAIEmbeddings(BaseModel, Embeddings):
                     oci_config=client_kwargs["config"]
                 )
             elif values["auth_type"] == OCIAuthType(3).name:
-                client_kwargs["signer"] = (
-                    oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
-                )
+                client_kwargs[
+                    "signer"
+                ] = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
             elif values["auth_type"] == OCIAuthType(4).name:
-                client_kwargs["signer"] = (
-                    oci.auth.signers.get_resource_principals_signer()
-                )
+                client_kwargs[
+                    "signer"
+                ] = oci.auth.signers.get_resource_principals_signer()
             else:
                 raise ValueError("Please provide valid value to auth_type")
 
@@ -178,9 +180,6 @@ class OCIGenAIEmbeddings(BaseModel, Embeddings):
             List of embeddings, one for each text.
         """
         from oci.generative_ai_inference import models
-
-        if not self.model_id:
-            raise ValueError("Model ID is required to embed documents")
 
         if self.model_id.startswith(CUSTOM_ENDPOINT_PREFIX):
             serving_mode = models.DedicatedServingMode(endpoint_id=self.model_id)

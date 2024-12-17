@@ -1,5 +1,4 @@
 """Integration test for Outline API Wrapper."""
-
 from typing import List
 
 import pytest

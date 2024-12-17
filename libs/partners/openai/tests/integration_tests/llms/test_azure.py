@@ -1,5 +1,4 @@
 """Test AzureOpenAI wrapper."""
-
 import os
 from typing import Any, Generator
 
@@ -20,7 +19,7 @@ DEPLOYMENT_NAME = os.environ.get(
 
 
 def _get_llm(**kwargs: Any) -> AzureOpenAI:
-    return AzureOpenAI(  # type: ignore[call-arg, call-arg, call-arg]
+    return AzureOpenAI(
         deployment_name=DEPLOYMENT_NAME,
         openai_api_version=OPENAI_API_VERSION,
         azure_endpoint=OPENAI_API_BASE,
@@ -31,7 +30,9 @@ def _get_llm(**kwargs: Any) -> AzureOpenAI:
 
 @pytest.fixture
 def llm() -> AzureOpenAI:
-    return _get_llm(max_tokens=10)
+    return _get_llm(
+        max_tokens=10,
+    )
 
 
 @pytest.mark.scheduled

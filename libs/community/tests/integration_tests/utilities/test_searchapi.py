@@ -1,5 +1,4 @@
 """Integration tests for SearchApi"""
-
 from langchain_community.utilities.searchapi import SearchApiAPIWrapper
 
 

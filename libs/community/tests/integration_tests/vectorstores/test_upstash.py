@@ -68,6 +68,7 @@ def test_upstash_simple_insert() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_upstash_simple_insert_async() -> None:
     """Test end to end construction and search."""
     texts = ["foo", "bar", "baz"]
@@ -93,6 +94,7 @@ def test_upstash_with_metadatas() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_upstash_with_metadatas_async() -> None:
     """Test end to end construction and search."""
     texts = ["foo", "bar", "baz"]
@@ -123,6 +125,7 @@ def test_upstash_with_metadatas_with_scores() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_upstash_with_metadatas_with_scores_async() -> None:
     """Test end to end construction and scored search."""
     texts = ["foo", "bar", "baz"]
@@ -156,6 +159,7 @@ def test_upstash_with_metadatas_with_scores_using_vector() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_upstash_with_metadatas_with_scores_using_vector_async() -> None:
     """Test end to end construction and scored search, using embedding vector."""
     texts = ["foo", "bar", "baz"]
@@ -186,6 +190,7 @@ def test_upstash_mmr() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_upstash_mmr_async() -> None:
     """Test end to end construction and search."""
     texts = ["foo", "bar", "baz"]
@@ -208,6 +213,7 @@ def test_upstash_mmr_by_vector() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_upstash_mmr_by_vector_async() -> None:
     """Test end to end construction and search."""
     texts = ["foo", "bar", "baz"]
@@ -231,6 +237,7 @@ def test_init_from_index() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_init_from_async_index() -> None:
     from upstash_vector import AsyncIndex
 
@@ -252,6 +259,7 @@ def test_init_from_credentials() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_init_from_credentials_async() -> None:
     store = UpstashVectorStore(
         index_url=os.environ["UPSTASH_VECTOR_REST_URL"],
@@ -318,6 +326,7 @@ def test_upstash_similarity_search_with_metadata() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_upstash_similarity_search_with_metadata_async() -> None:
     store = UpstashVectorStore(embedding=FakeEmbeddings())
     docs = [
@@ -375,6 +384,7 @@ def test_upstash_similarity_search_by_vector_with_metadata() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_upstash_similarity_search_by_vector_with_metadata_async() -> None:
     store = UpstashVectorStore(embedding=FakeEmbeddings())
     docs = [
@@ -424,6 +434,7 @@ def test_upstash_max_marginal_relevance_search_with_metadata() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_upstash_max_marginal_relevance_search_with_metadata_async() -> None:
     store = UpstashVectorStore(embedding=FakeEmbeddings())
     docs = [
@@ -528,6 +539,7 @@ def test_embedding_index() -> None:
 
 
 @pytest.mark.vcr()
+@pytest.mark.asyncio
 async def test_embedding_index_async() -> None:
     store = UpstashVectorStore(
         index_url=os.environ["UPSTASH_VECTOR_URL_EMBEDDING"],

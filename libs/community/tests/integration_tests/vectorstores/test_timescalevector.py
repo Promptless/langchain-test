@@ -1,5 +1,4 @@
 """Test TimescaleVector functionality."""
-
 import os
 from datetime import datetime, timedelta
 from typing import List

@@ -1,5 +1,4 @@
 """Integration test for JIRA API Wrapper."""
-
 import json
 from datetime import datetime
 

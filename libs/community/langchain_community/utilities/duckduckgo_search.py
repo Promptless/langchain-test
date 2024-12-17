@@ -3,10 +3,9 @@
 No setup required. Free.
 https://pypi.org/project/duckduckgo-search/
 """
+from typing import Dict, List, Optional
 
-from typing import Any, Dict, List, Optional
-
-from pydantic import BaseModel, ConfigDict, model_validator
+from langchain_core.pydantic_v1 import BaseModel, Extra, root_validator
 
 
 class DuckDuckGoSearchAPIWrapper(BaseModel):
@@ -37,13 +36,13 @@ class DuckDuckGoSearchAPIWrapper(BaseModel):
     Options: text, news
     """
 
-    model_config = ConfigDict(
-        extra="forbid",
-    )
+    class Config:
+        """Configuration for this pydantic object."""
 
-    @model_validator(mode="before")
-    @classmethod
-    def validate_environment(cls, values: Dict) -> Any:
+        extra = Extra.forbid
+
+    @root_validator()
+    def validate_environment(cls, values: Dict) -> Dict:
         """Validate that python package exists in environment."""
         try:
             from duckduckgo_search import DDGS  # noqa: F401
@@ -63,7 +62,7 @@ class DuckDuckGoSearchAPIWrapper(BaseModel):
         with DDGS() as ddgs:
             ddgs_gen = ddgs.text(
                 query,
-                region=self.region,  # type: ignore[arg-type]
+                region=self.region,
                 safesearch=self.safesearch,
                 timelimit=self.time,
                 max_results=max_results or self.max_results,
@@ -82,7 +81,7 @@ class DuckDuckGoSearchAPIWrapper(BaseModel):
         with DDGS() as ddgs:
             ddgs_gen = ddgs.news(
                 query,
-                region=self.region,  # type: ignore[arg-type]
+                region=self.region,
                 safesearch=self.safesearch,
                 timelimit=self.time,
                 max_results=max_results or self.max_results,

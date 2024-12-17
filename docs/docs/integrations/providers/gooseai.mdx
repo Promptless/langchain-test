@@ -1,13 +1,9 @@
 # GooseAI
 
->[GooseAI](https://goose.ai) makes deploying NLP services easier and more accessible. 
-> `GooseAI` is a fully managed inference service delivered via API. 
-> With feature parity to other well known APIs, `GooseAI` delivers a plug-and-play solution 
-> for serving open source language models at the industry's best economics by simply 
-> changing 2 lines in your code.
+This page covers how to use the GooseAI ecosystem within LangChain.
+It is broken into two parts: installation and setup, and then references to specific GooseAI wrappers.
 
 ## Installation and Setup
-
 - Install the Python SDK with `pip install openai`
 - Get your GooseAI api key from this link [here](https://goose.ai/).
 - Set the environment variable (`GOOSEAI_API_KEY`).
@@ -17,11 +13,11 @@ import os
 os.environ["GOOSEAI_API_KEY"] = "YOUR_API_KEY"
 ```
 
+## Wrappers
 
-## LLMs
+### LLM
 
-See a [usage example](/docs/integrations/llms/gooseai).
-
+There exists an GooseAI LLM wrapper, which you can access with: 
 ```python
 from langchain_community.llms import GooseAI
 ```

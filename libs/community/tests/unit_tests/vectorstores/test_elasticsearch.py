@@ -1,5 +1,4 @@
 """Test Elasticsearch functionality."""
-
 import pytest
 
 from langchain_community.vectorstores.elasticsearch import (

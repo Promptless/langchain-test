@@ -1,7 +1,6 @@
 """Test XMLOutputParser"""
-
 import importlib
-from collections.abc import AsyncIterator, Iterable
+from typing import AsyncIterator, Iterable
 
 import pytest
 

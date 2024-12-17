@@ -1,5 +1,4 @@
 """Test LASER embeddings."""
-
 import pytest
 
 from langchain_community.embeddings.laser import LaserEmbeddings

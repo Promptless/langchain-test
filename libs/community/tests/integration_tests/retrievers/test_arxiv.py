@@ -1,5 +1,4 @@
 """Integration test for Arxiv API Wrapper."""
-
 from typing import List
 
 import pytest

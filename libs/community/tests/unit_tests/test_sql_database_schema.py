@@ -3,7 +3,6 @@
 
 Using DuckDB as SQLite does not support schemas.
 """
-
 import pytest
 
 from sqlalchemy import (
@@ -18,9 +17,6 @@ from sqlalchemy import (
     insert,
     schema,
 )
-import sqlalchemy as sa
-
-from packaging import version
 
 from langchain_community.utilities.sql_database import SQLDatabase
 
@@ -46,9 +42,6 @@ company = Table(
 )
 
 
-@pytest.mark.xfail(
-    version.parse(sa.__version__).major == 1, reason="SQLAlchemy 1.x issues"
-)
 def test_table_info() -> None:
     """Test that table info is constructed properly."""
     engine = create_engine("duckdb:///:memory:")
@@ -71,9 +64,6 @@ def test_table_info() -> None:
     assert sorted(" ".join(output.split())) == sorted(" ".join(expected_output.split()))
 
 
-@pytest.mark.xfail(
-    version.parse(sa.__version__).major == 1, reason="SQLAlchemy 1.x issues"
-)
 def test_sql_database_run() -> None:
     """Test that commands can be run successfully and returned in correct format."""
     engine = create_engine("duckdb:///:memory:")

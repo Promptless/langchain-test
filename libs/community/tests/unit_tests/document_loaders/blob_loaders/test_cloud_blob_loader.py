@@ -1,5 +1,4 @@
 """Verify that file system blob loader works as expected."""
-
 import os
 import tempfile
 from typing import Generator

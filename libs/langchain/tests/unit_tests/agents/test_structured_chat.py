@@ -1,5 +1,4 @@
 """Unittests for langchain.agents.chat package."""
-
 from textwrap import dedent
 from typing import Any, Tuple
 

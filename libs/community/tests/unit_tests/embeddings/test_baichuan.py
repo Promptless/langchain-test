@@ -1,16 +1,15 @@
 from typing import cast
 
-from pydantic import SecretStr
+from langchain_core.pydantic_v1 import SecretStr
 
 from langchain_community.embeddings import BaichuanTextEmbeddings
 
 
 def test_sparkllm_initialization_by_alias() -> None:
     # Effective initialization
-    embeddings = BaichuanTextEmbeddings(
-        model="embedding_model",
+    embeddings = BaichuanTextEmbeddings(  # type: ignore[call-arg]
+        model="embedding_model",  # type: ignore[arg-type]
         api_key="your-api-key",  # type: ignore[arg-type]
-        session=None,
     )
     assert embeddings.model_name == "embedding_model"
     assert (

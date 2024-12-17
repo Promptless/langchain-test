@@ -1,5 +1,4 @@
 """Test generic loader."""
-
 import os
 import tempfile
 from pathlib import Path

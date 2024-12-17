@@ -7,7 +7,7 @@ from langchain_core.output_parsers.openai_functions import (
     PydanticAttrOutputFunctionsParser,
 )
 from langchain_core.prompts import BasePromptTemplate, ChatPromptTemplate
-from pydantic import BaseModel
+from langchain_core.pydantic_v1 import BaseModel
 
 from langchain.chains.base import Chain
 from langchain.chains.llm import LLMChain
@@ -58,10 +58,10 @@ Passage:
         "feedback here:"
         "<https://github.com/langchain-ai/langchain/discussions/18154>"
     ),
-    removal="1.0",
+    removal="0.3.0",
     alternative=(
         """
-            from pydantic import BaseModel, Field
+            from langchain_core.pydantic_v1 import BaseModel, Field
             from langchain_anthropic import ChatAnthropic
     
             class Joke(BaseModel):
@@ -128,10 +128,10 @@ def create_extraction_chain(
         "feedback here:"
         "<https://github.com/langchain-ai/langchain/discussions/18154>"
     ),
-    removal="1.0",
+    removal="0.3.0",
     alternative=(
         """
-            from pydantic import BaseModel, Field
+            from langchain_core.pydantic_v1 import BaseModel, Field
             from langchain_anthropic import ChatAnthropic
     
             class Joke(BaseModel):
@@ -172,11 +172,7 @@ def create_extraction_chain_pydantic(
     class PydanticSchema(BaseModel):
         info: List[pydantic_schema]  # type: ignore
 
-    if hasattr(pydantic_schema, "model_json_schema"):
-        openai_schema = pydantic_schema.model_json_schema()
-    else:
-        openai_schema = pydantic_schema.schema()
-
+    openai_schema = pydantic_schema.schema()
     openai_schema = _resolve_schema_references(
         openai_schema, openai_schema.get("definitions", {})
     )

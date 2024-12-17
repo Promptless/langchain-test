@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 
 from langchain_core.embeddings import Embeddings
-from pydantic import BaseModel, ConfigDict, Field
+from langchain_core.pydantic_v1 import BaseModel, Extra, Field
 
 DEFAULT_MODEL_NAME = "sentence-transformers/all-mpnet-base-v2"
 
@@ -26,6 +26,7 @@ class HuggingFaceEmbeddings(BaseModel, Embeddings):
             )
     """
 
+    client: Any  #: :meta private:
     model_name: str = DEFAULT_MODEL_NAME
     """Model name to use."""
     cache_folder: Optional[str] = None
@@ -36,14 +37,9 @@ class HuggingFaceEmbeddings(BaseModel, Embeddings):
     `prompts`, `default_prompt_name`, `revision`, `trust_remote_code`, or `token`.
     See also the Sentence Transformer documentation: https://sbert.net/docs/package_reference/SentenceTransformer.html#sentence_transformers.SentenceTransformer"""
     encode_kwargs: Dict[str, Any] = Field(default_factory=dict)
-    """Keyword arguments to pass when calling the `encode` method for the documents of
-    the Sentence Transformer model, such as `prompt_name`, `prompt`, `batch_size`, 
-    `precision`, `normalize_embeddings`, and more.
-    See also the Sentence Transformer documentation: https://sbert.net/docs/package_reference/SentenceTransformer.html#sentence_transformers.SentenceTransformer.encode"""
-    query_encode_kwargs: Dict[str, Any] = Field(default_factory=dict)
-    """Keyword arguments to pass when calling the `encode` method for the query of
-    the Sentence Transformer model, such as `prompt_name`, `prompt`, `batch_size`, 
-    `precision`, `normalize_embeddings`, and more.
+    """Keyword arguments to pass when calling the `encode` method of the Sentence
+    Transformer model, such as `prompt_name`, `prompt`, `batch_size`, `precision`,
+    `normalize_embeddings`, and more.
     See also the Sentence Transformer documentation: https://sbert.net/docs/package_reference/SentenceTransformer.html#sentence_transformers.SentenceTransformer.encode"""
     multi_process: bool = False
     """Run encode() on multiple GPUs."""
@@ -55,57 +51,21 @@ class HuggingFaceEmbeddings(BaseModel, Embeddings):
         super().__init__(**kwargs)
         try:
             import sentence_transformers  # type: ignore[import]
+
         except ImportError as exc:
             raise ImportError(
                 "Could not import sentence_transformers python package. "
                 "Please install it with `pip install sentence-transformers`."
             ) from exc
 
-        self._client = sentence_transformers.SentenceTransformer(
+        self.client = sentence_transformers.SentenceTransformer(
             self.model_name, cache_folder=self.cache_folder, **self.model_kwargs
         )
 
-    model_config = ConfigDict(
-        extra="forbid",
-        protected_namespaces=(),
-    )
+    class Config:
+        """Configuration for this pydantic object."""
 
-    def _embed(
-        self, texts: list[str], encode_kwargs: Dict[str, Any]
-    ) -> List[List[float]]:
-        """
-        Embed a text using the HuggingFace transformer model.
-
-        Args:
-            texts: The list of texts to embed.
-            encode_kwargs: Keyword arguments to pass when calling the
-                `encode` method for the documents of the SentenceTransformer
-                 encode method.
-
-        Returns:
-            List of embeddings, one for each text.
-        """
-        import sentence_transformers  # type: ignore[import]
-
-        texts = list(map(lambda x: x.replace("\n", " "), texts))
-        if self.multi_process:
-            pool = self._client.start_multi_process_pool()
-            embeddings = self._client.encode_multi_process(texts, pool)
-            sentence_transformers.SentenceTransformer.stop_multi_process_pool(pool)
-        else:
-            embeddings = self._client.encode(
-                texts,
-                show_progress_bar=self.show_progress,
-                **encode_kwargs,  # type: ignore
-            )
-
-        if isinstance(embeddings, list):
-            raise TypeError(
-                "Expected embeddings to be a Tensor or a numpy array, "
-                "got a list instead."
-            )
-
-        return embeddings.tolist()
+        extra = Extra.forbid
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """Compute doc embeddings using a HuggingFace transformer model.
@@ -116,7 +76,19 @@ class HuggingFaceEmbeddings(BaseModel, Embeddings):
         Returns:
             List of embeddings, one for each text.
         """
-        return self._embed(texts, self.encode_kwargs)
+        import sentence_transformers  # type: ignore[import]
+
+        texts = list(map(lambda x: x.replace("\n", " "), texts))
+        if self.multi_process:
+            pool = self.client.start_multi_process_pool()
+            embeddings = self.client.encode_multi_process(texts, pool)
+            sentence_transformers.SentenceTransformer.stop_multi_process_pool(pool)
+        else:
+            embeddings = self.client.encode(
+                texts, show_progress_bar=self.show_progress, **self.encode_kwargs
+            )
+
+        return embeddings.tolist()
 
     def embed_query(self, text: str) -> List[float]:
         """Compute query embeddings using a HuggingFace transformer model.
@@ -127,9 +99,4 @@ class HuggingFaceEmbeddings(BaseModel, Embeddings):
         Returns:
             Embeddings for the text.
         """
-        embed_kwargs = (
-            self.query_encode_kwargs
-            if len(self.query_encode_kwargs) > 0
-            else self.encode_kwargs
-        )
-        return self._embed([text], embed_kwargs)[0]
+        return self.embed_documents([text])[0]

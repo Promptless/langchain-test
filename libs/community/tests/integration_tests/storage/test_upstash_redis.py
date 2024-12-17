@@ -1,5 +1,4 @@
 """Implement integration tests for Redis storage."""
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

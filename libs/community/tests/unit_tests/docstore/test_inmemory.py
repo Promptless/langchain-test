@@ -1,5 +1,4 @@
 """Test in memory docstore."""
-
 import pytest
 from langchain_core.documents import Document
 

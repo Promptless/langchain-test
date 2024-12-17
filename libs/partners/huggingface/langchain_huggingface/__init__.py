@@ -1,6 +1,4 @@
-from langchain_huggingface.chat_models import (
-    ChatHuggingFace,  # type: ignore[import-not-found]
-)
+from langchain_huggingface.chat_models import ChatHuggingFace
 from langchain_huggingface.embeddings import (
     HuggingFaceEmbeddings,
     HuggingFaceEndpointEmbeddings,

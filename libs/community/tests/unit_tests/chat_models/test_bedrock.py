@@ -1,5 +1,4 @@
 """Test Anthropic Chat API wrapper."""
-
 from typing import List
 from unittest.mock import MagicMock
 

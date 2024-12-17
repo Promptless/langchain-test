@@ -1,5 +1,4 @@
 """Test HyDE."""
-
 from typing import Any, List, Optional
 
 import numpy as np

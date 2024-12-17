@@ -1,5 +1,4 @@
 """Test PGVector functionality."""
-
 import os
 from typing import Any, Dict, Generator, List, Type, Union
 

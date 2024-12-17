@@ -1,5 +1,4 @@
 """Test Annoy functionality."""
-
 import tempfile
 
 import pytest

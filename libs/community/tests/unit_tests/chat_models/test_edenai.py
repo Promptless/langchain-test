@@ -1,5 +1,4 @@
 """Test EdenAI Chat API wrapper."""
-
 from typing import List
 
 import pytest

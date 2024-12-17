@@ -1,5 +1,4 @@
 """Test building the Zapier tool, not running it."""
-
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -16,9 +15,7 @@ def test_default_base_prompt() -> None:
         action_id="test",
         zapier_description="test",
         params_schema={"test": "test"},
-        api_wrapper=ZapierNLAWrapper(
-            zapier_nla_api_key="test", zapier_nla_oauth_access_token=""
-        ),
+        api_wrapper=ZapierNLAWrapper(zapier_nla_api_key="test"),  # type: ignore[call-arg]
     )
 
     # Test that the base prompt was successfully assigned to the default prompt

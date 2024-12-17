@@ -1,5 +1,4 @@
 """Unit tests for beautiful soup document transformer."""
-
 import pytest
 from langchain_core.documents import Document
 

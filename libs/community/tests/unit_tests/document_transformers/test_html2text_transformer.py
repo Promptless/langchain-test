@@ -1,5 +1,4 @@
 """Unit tests for html2text document transformer."""
-
 import pytest
 from langchain_core.documents import Document
 

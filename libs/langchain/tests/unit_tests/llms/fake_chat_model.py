@@ -1,5 +1,4 @@
 """Fake Chat Model wrapper for testing purposes."""
-
 import re
 from typing import Any, AsyncIterator, Dict, Iterator, List, Optional, cast
 

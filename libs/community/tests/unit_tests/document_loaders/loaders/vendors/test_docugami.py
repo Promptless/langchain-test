@@ -1,5 +1,4 @@
 """Test DocugamiLoader."""
-
 from pathlib import Path
 
 import pytest
@@ -25,6 +24,4 @@ def test_docugami_loader_local() -> None:
 
 def test_docugami_initialization() -> None:
     """Test correct initialization in remote mode."""
-    DocugamiLoader(
-        access_token="test", docset_id="123", document_ids=None, file_paths=None
-    )
+    DocugamiLoader(access_token="test", docset_id="123")  # type: ignore[call-arg]

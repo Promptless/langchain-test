@@ -1,6 +1,4 @@
-from langchain_exa import (
-    ExaSearchResults,  # type: ignore[import-not-found, import-not-found]
-)
+from langchain_exa import ExaSearchResults
 
 
 def test_search_tool() -> None:

@@ -1,5 +1,4 @@
 """Loads YouTube transcript."""
-
 from __future__ import annotations
 
 import logging
@@ -7,11 +6,10 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Sequence, Union
 from urllib.parse import parse_qs, urlparse
-from xml.etree.ElementTree import ParseError  # OK: trusted-source
 
 from langchain_core.documents import Document
-from pydantic import model_validator
-from pydantic.dataclasses import dataclass
+from langchain_core.pydantic_v1 import root_validator
+from langchain_core.pydantic_v1.dataclasses import dataclass
 
 from langchain_community.document_loaders.base import BaseLoader
 
@@ -29,8 +27,6 @@ class GoogleApiClient:
     As the google api expects credentials you need to set up a google account and
     register your Service. "https://developers.google.com/docs/api/quickstart/python"
 
-    *Security Note*: Note that parsing of the transcripts relies on the standard
-        xml library but the input is viewed as trusted in this case.
 
 
     Example:
@@ -50,9 +46,10 @@ class GoogleApiClient:
     def __post_init__(self) -> None:
         self.creds = self._load_credentials()
 
-    @model_validator(mode="before")
-    @classmethod
-    def validate_channel_or_videoIds_is_set(cls, values: Dict[str, Any]) -> Any:
+    @root_validator
+    def validate_channel_or_videoIds_is_set(
+        cls, values: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Validate that either folder_id or document_ids is set, but not both."""
 
         if not values.get("credentials_path") and not values.get(
@@ -390,9 +387,10 @@ class GoogleApiYoutubeLoader(BaseLoader):
 
         return build("youtube", "v3", credentials=creds)
 
-    @model_validator(mode="before")
-    @classmethod
-    def validate_channel_or_videoIds_is_set(cls, values: Dict[str, Any]) -> Any:
+    @root_validator
+    def validate_channel_or_videoIds_is_set(
+        cls, values: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Validate that either folder_id or document_ids is set, but not both."""
         if not values.get("channel_name") and not values.get("video_ids"):
             raise ValueError("Must specify either channel_name or video_ids")
@@ -438,14 +436,6 @@ class GoogleApiYoutubeLoader(BaseLoader):
         channel_id = response["items"][0]["id"]["channelId"]
         return channel_id
 
-    def _get_uploads_playlist_id(self, channel_id: str) -> str:
-        request = self.youtube_client.channels().list(
-            part="contentDetails",
-            id=channel_id,
-        )
-        response = request.execute()
-        return response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
-
     def _get_document_for_channel(self, channel: str, **kwargs: Any) -> List[Document]:
         try:
             from youtube_transcript_api import (
@@ -461,11 +451,10 @@ class GoogleApiYoutubeLoader(BaseLoader):
             )
 
         channel_id = self._get_channel_id(channel)
-        uploads_playlist_id = self._get_uploads_playlist_id(channel_id)
-        request = self.youtube_client.playlistItems().list(
+        request = self.youtube_client.search().list(
             part="id,snippet",
-            playlistId=uploads_playlist_id,
-            maxResults=50,
+            channelId=channel_id,
+            maxResults=50,  # adjust this value to retrieve more or fewer videos
         )
         video_ids = []
         while request is not None:
@@ -473,20 +462,23 @@ class GoogleApiYoutubeLoader(BaseLoader):
 
             # Add each video ID to the list
             for item in response["items"]:
-                video_id = item["snippet"]["resourceId"]["videoId"]
-                meta_data = {"videoId": video_id}
+                if not item["id"].get("videoId"):
+                    continue
+                meta_data = {"videoId": item["id"]["videoId"]}
                 if self.add_video_info:
                     item["snippet"].pop("thumbnails")
                     meta_data.update(item["snippet"])
                 try:
-                    page_content = self._get_transcripe_for_video_id(video_id)
+                    page_content = self._get_transcripe_for_video_id(
+                        item["id"]["videoId"]
+                    )
                     video_ids.append(
                         Document(
                             page_content=page_content,
                             metadata=meta_data,
                         )
                     )
-                except (TranscriptsDisabled, NoTranscriptFound, ParseError) as e:
+                except (TranscriptsDisabled, NoTranscriptFound) as e:
                     if self.continue_on_failure:
                         logger.error(
                             "Error fetching transscript "

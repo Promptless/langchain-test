@@ -1,5 +1,4 @@
 """Test Atlas functionality."""
-
 import time
 
 from langchain_community.vectorstores import AtlasDB

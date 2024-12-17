@@ -1,22 +1,24 @@
-import json
 import logging
 import time
-from typing import Any, List
+from typing import Any, List, Optional
 
 import requests
 from langchain_core.embeddings import Embeddings
-from pydantic import BaseModel, ConfigDict
+from langchain_core.pydantic_v1 import BaseModel, Extra
 
 logger = logging.getLogger(__name__)
 
 
 class OVHCloudEmbeddings(BaseModel, Embeddings):
     """
-    OVHcloud AI Endpoints Embeddings.
+    Usage:
+        OVH_AI_ENDPOINTS_ACCESS_TOKEN="your-token" python3 langchain_embedding.py
+    NB: Make sure you are using a valid token.
+    In the contrary, document indexing will be long due to rate-limiting.
     """
 
     """ OVHcloud AI Endpoints Access Token"""
-    access_token: str = ""
+    access_token: Optional[str] = None
 
     """ OVHcloud AI Endpoints model name for embeddings generation"""
     model_name: str = ""
@@ -24,12 +26,17 @@ class OVHCloudEmbeddings(BaseModel, Embeddings):
     """ OVHcloud AI Endpoints region"""
     region: str = "kepler"
 
-    model_config = ConfigDict(extra="forbid", protected_namespaces=())
+    class Config:
+        """Configuration for this pydantic object."""
+
+        extra = Extra.forbid
 
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
-        if self.access_token == "":
-            raise ValueError("Access token is required for OVHCloud embeddings.")
+        if self.access_token is None:
+            logger.warning(
+                "No access token provided indexing will be slow due to rate limiting."
+            )
         if self.model_name == "":
             raise ValueError("Model name is required for OVHCloud embeddings.")
         if self.region == "":
@@ -42,55 +49,17 @@ class OVHCloudEmbeddings(BaseModel, Embeddings):
         Returns:
             List[float]: Embeddings for the text.
         """
-
-        return self._send_request_to_ai_endpoints("text/plain", text, "text2vec")
-
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        """Embed a list of documents.
-        Args:
-           texts (List[str]): The list of texts to embed.
-
-        Returns:
-           List[List[float]]: List of embeddings, one for each input text.
-
-        """
-
-        return self._send_request_to_ai_endpoints(
-            "application/json", json.dumps(texts), "batch_text2vec"
-        )
-
-    def embed_query(self, text: str) -> List[float]:
-        """Embed a single query text.
-        Args:
-            text (str): The text to embed.
-        Returns:
-            List[float]: Embeddings for the text.
-        """
-        return self._generate_embedding(text)
-
-    def _send_request_to_ai_endpoints(
-        self, contentType: str, payload: str, route: str
-    ) -> Any:
-        """Send a HTTPS request to OVHcloud AI Endpoints
-        Args:
-            contentType (str): The content type of the request, application/json or text/plain.
-            payload (str): The payload of the request.
-            route (str): The route of the request, batch_text2vec or text2vec.
-        """  # noqa: E501
         headers = {
-            "content-type": contentType,
+            "content-type": "text/plain",
             "Authorization": f"Bearer {self.access_token}",
         }
 
         session = requests.session()
         while True:
             response = session.post(
-                (
-                    f"https://{self.model_name}.endpoints.{self.region}"
-                    f".ai.cloud.ovh.net/api/{route}"
-                ),
+                f"https://{self.model_name}.endpoints.{self.region}.ai.cloud.ovh.net/api/text2vec",
                 headers=headers,
-                data=payload,
+                data=text,
             )
             if response.status_code != 200:
                 if response.status_code == 429:
@@ -103,9 +72,7 @@ class OVHCloudEmbeddings(BaseModel, Embeddings):
                     else:
                         """Rate limit reset time has passed, retry immediately"""
                         continue
-                if response.status_code == 401:
-                    """ Unauthorized, retry with new token """
-                    raise ValueError("Unauthorized, retry with new token")
+
                 """ Handle other non-200 status codes """
                 raise ValueError(
                     "Request failed with status code: {status_code}, {text}".format(
@@ -113,3 +80,22 @@ class OVHCloudEmbeddings(BaseModel, Embeddings):
                     )
                 )
             return response.json()
+
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        """Create a retry decorator for PremAIEmbeddings.
+        Args:
+           texts (List[str]): The list of texts to embed.
+
+        Returns:
+           List[List[float]]: List of embeddings, one for each input text.
+        """
+        return [self._generate_embedding(text) for text in texts]
+
+    def embed_query(self, text: str) -> List[float]:
+        """Embed a single query text.
+        Args:
+            text (str): The text to embed.
+        Returns:
+            List[float]: Embeddings for the text.
+        """
+        return self._generate_embedding(text)

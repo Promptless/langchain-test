@@ -1,5 +1,4 @@
 """Test Fireworks AI API Wrapper."""
-
 from typing import Generator
 
 import pytest

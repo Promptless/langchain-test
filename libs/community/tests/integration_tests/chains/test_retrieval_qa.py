@@ -1,5 +1,4 @@
 """Test RetrievalQA functionality."""
-
 from pathlib import Path
 
 from langchain.chains import RetrievalQA

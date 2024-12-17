@@ -1,5 +1,4 @@
 """Test OpenLLM wrapper."""
-
 from langchain_community.llms.openllm import OpenLLM
 
 

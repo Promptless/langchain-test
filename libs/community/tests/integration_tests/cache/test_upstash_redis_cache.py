@@ -1,5 +1,4 @@
 """Test Upstash Redis cache functionality."""
-
 import uuid
 
 import langchain

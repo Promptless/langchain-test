@@ -1,24 +1,20 @@
 # flake8: noqa: E501
 """Test SQL database wrapper."""
-
 import pytest
 import sqlalchemy as sa
-from packaging import version
 from sqlalchemy import (
     Column,
     Integer,
     MetaData,
+    Result,
     String,
     Table,
     Text,
     insert,
     select,
 )
-from sqlalchemy.engine import Engine, Result
 
 from langchain_community.utilities.sql_database import SQLDatabase, truncate_word
-
-is_sqlalchemy_v1 = version.parse(sa.__version__).major == 1
 
 metadata_obj = MetaData()
 
@@ -39,23 +35,22 @@ company = Table(
 
 
 @pytest.fixture
-def engine() -> Engine:
+def engine() -> sa.Engine:
     return sa.create_engine("sqlite:///:memory:")
 
 
 @pytest.fixture
-def db(engine: Engine) -> SQLDatabase:
+def db(engine: sa.Engine) -> SQLDatabase:
     metadata_obj.create_all(engine)
     return SQLDatabase(engine)
 
 
 @pytest.fixture
-def db_lazy_reflection(engine: Engine) -> SQLDatabase:
+def db_lazy_reflection(engine: sa.Engine) -> SQLDatabase:
     metadata_obj.create_all(engine)
     return SQLDatabase(engine, lazy_table_reflection=True)
 
 
-@pytest.mark.xfail(is_sqlalchemy_v1, reason="SQLAlchemy 1.x issues")
 def test_table_info(db: SQLDatabase) -> None:
     """Test that table info is constructed properly."""
     output = db.table_info
@@ -86,7 +81,6 @@ def test_table_info(db: SQLDatabase) -> None:
     assert sorted(" ".join(output.split())) == sorted(" ".join(expected_output.split()))
 
 
-@pytest.mark.xfail(is_sqlalchemy_v1, reason="SQLAlchemy 1.x issues")
 def test_table_info_lazy_reflection(db_lazy_reflection: SQLDatabase) -> None:
     """Test that table info with lazy reflection"""
     assert len(db_lazy_reflection._metadata.sorted_tables) == 0
@@ -113,7 +107,6 @@ def test_table_info_lazy_reflection(db_lazy_reflection: SQLDatabase) -> None:
     assert db_lazy_reflection._metadata.sorted_tables[1].name == "user"
 
 
-@pytest.mark.xfail(is_sqlalchemy_v1, reason="SQLAlchemy 1.x issues")
 def test_table_info_w_sample_rows(db: SQLDatabase) -> None:
     """Test that table info is constructed properly."""
 
@@ -237,7 +230,6 @@ def test_sql_database_run_update(db: SQLDatabase) -> None:
     assert output == expected_output
 
 
-@pytest.mark.skipif(is_sqlalchemy_v1, reason="Requires SQLAlchemy 2 or newer")
 def test_sql_database_schema_translate_map() -> None:
     """Verify using statement-specific execution options."""
 

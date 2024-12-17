@@ -1,5 +1,4 @@
 """Test the telegram chat loader."""
-
 import pathlib
 import tempfile
 import zipfile

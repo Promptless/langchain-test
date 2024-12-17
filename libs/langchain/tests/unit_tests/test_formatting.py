@@ -1,5 +1,4 @@
 """Test formatting functionality."""
-
 import pytest
 from langchain_core.utils import formatter
 

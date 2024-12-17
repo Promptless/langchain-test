@@ -1,5 +1,4 @@
 """Test Bytedance Volcano Embedding."""
-
 from langchain_community.embeddings import VolcanoEmbeddings
 
 

@@ -1,5 +1,4 @@
 """Integration test for Wikipedia API Wrapper."""
-
 from typing import List
 
 import pytest

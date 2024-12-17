@@ -1,19 +1,16 @@
-# Forefront AI
+# ForefrontAI
 
-> [Forefront AI](https://forefront.ai/) is a platform enabling you to
-> fine-tune and inference open-source text generation models 
-
+This page covers how to use the ForefrontAI ecosystem within LangChain.
+It is broken into two parts: installation and setup, and then references to specific ForefrontAI wrappers.
 
 ## Installation and Setup
+- Get an ForefrontAI api key and set it as an environment variable (`FOREFRONTAI_API_KEY`)
 
-Get an `ForefrontAI` API key
-visiting [this page](https://accounts.forefront.ai/sign-in?redirect_url=https%3A%2F%2Fforefront.ai%2Fapp%2Fapi-keys).
- and set it as an environment variable (`FOREFRONTAI_API_KEY`).
+## Wrappers
 
-## LLM
+### LLM
 
-See a [usage example](/docs/integrations/llms/forefrontai).
-
+There exists an ForefrontAI LLM wrapper, which you can access with 
 ```python
 from langchain_community.llms import ForefrontAI
 ```

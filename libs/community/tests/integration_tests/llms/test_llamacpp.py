@@ -1,6 +1,5 @@
 # flake8: noqa
 """Test Llama.cpp wrapper."""
-
 import os
 from typing import Generator
 from urllib.request import urlretrieve

@@ -1,5 +1,4 @@
 """Loads RST files."""
-
 from pathlib import Path
 from typing import Any, List, Union
 
@@ -55,4 +54,4 @@ class UnstructuredRSTLoader(UnstructuredFileLoader):
     def _get_elements(self) -> List:
         from unstructured.partition.rst import partition_rst
 
-        return partition_rst(filename=self.file_path, **self.unstructured_kwargs)  # type: ignore[arg-type]
+        return partition_rst(filename=self.file_path, **self.unstructured_kwargs)

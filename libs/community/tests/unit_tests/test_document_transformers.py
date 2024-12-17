@@ -1,5 +1,4 @@
 """Unit tests for document transformers."""
-
 import pytest
 
 pytest.importorskip("langchain_community")

@@ -21,7 +21,7 @@ For example
 ```python
 from langchain_openai import OpenAI
 from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+from langchain.chains import LLMChain
 
 import os
 os.environ['OPENAI_API_BASE'] = "https://shale.live/v1"
@@ -35,11 +35,10 @@ template = """Question: {question}
 
 prompt = PromptTemplate.from_template(template)
 
-
-llm_chain = prompt | llm | StrOutputParser()
+llm_chain = LLMChain(prompt=prompt, llm=llm)
 
 question = "What NFL team won the Super Bowl in the year Justin Beiber was born?"
 
-llm_chain.invoke(question)
+llm_chain.run(question)
 
 ```

@@ -1,5 +1,4 @@
 """Test Epsilla functionality."""
-
 from langchain_community.vectorstores import Epsilla
 from tests.integration_tests.vectorstores.fake_embeddings import (
     FakeEmbeddings,

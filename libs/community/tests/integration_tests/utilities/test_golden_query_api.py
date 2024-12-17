@@ -1,5 +1,4 @@
 """Integration test for Golden API Wrapper."""
-
 import json
 
 from langchain_community.utilities.golden_query import GoldenQueryAPIWrapper

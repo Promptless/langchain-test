@@ -1,5 +1,4 @@
 """A chain for comparing the output of two models using embeddings."""
-
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -10,8 +9,7 @@ from langchain_core.callbacks.manager import (
     Callbacks,
 )
 from langchain_core.embeddings import Embeddings
-from langchain_core.utils import pre_init
-from pydantic import ConfigDict, Field
+from langchain_core.pydantic_v1 import Field, root_validator
 
 from langchain.chains.base import Chain
 from langchain.evaluation.schema import PairwiseStringEvaluator, StringEvaluator
@@ -69,7 +67,7 @@ class _EmbeddingDistanceChainMixin(Chain):
     embeddings: Embeddings = Field(default_factory=_embedding_factory)
     distance_metric: EmbeddingDistance = Field(default=EmbeddingDistance.COSINE)
 
-    @pre_init
+    @root_validator(pre=False)
     def _validate_tiktoken_installed(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """Validate that the TikTok library is installed.
 
@@ -113,9 +111,10 @@ class _EmbeddingDistanceChainMixin(Chain):
                 )
         return values
 
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-    )
+    class Config:
+        """Permit embeddings to go unvalidated."""
+
+        arbitrary_types_allowed: bool = True
 
     @property
     def output_keys(self) -> List[str]:

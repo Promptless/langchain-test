@@ -1,6 +1,6 @@
 import tempfile
 import urllib.request
-from typing import Generator, Iterable
+from typing import Iterable
 
 import pytest
 from langchain_core.documents import Document
@@ -22,7 +22,7 @@ from langchain_community.vectorstores.vectara import (
 #    VECTARA_API_KEY, VECTARA_CORPUS_ID and VECTARA_CUSTOMER_ID
 #
 
-test_prompt_name = "vectara-summary-ext-24-05-med-omni"
+test_prompt_name = "vectara-experimental-summary-ext-2023-12-11-sml"
 
 
 def get_abbr(s: str) -> str:
@@ -102,10 +102,10 @@ def test_vectara_add_documents(vectara1: Vectara) -> None:
 
 
 @pytest.fixture(scope="function")
-def vectara2() -> Generator[Vectara, None, None]:
+def vectara2():  # type: ignore[no-untyped-def]
     # download documents to local storage and then upload as files
     # attention paper and deep learning book
-    vectara2: Vectara = Vectara()  # type: ignore
+    vectara2: Vectara = Vectara()
 
     urls = [
         (
@@ -299,36 +299,8 @@ def test_vectara_with_langchain_mmr(vectara3: Vectara) -> None:  # type: ignore[
     )
 
 
-def test_vectara_rerankers(vectara3: Vectara) -> None:  # type: ignore[no-untyped-def]
-    # test Vectara multi-lingual reranker
-    summary_config = SummaryConfig(is_enabled=True, max_results=7, response_lang="eng")
-    rerank_config = RerankConfig(reranker="rerank_multilingual_v1", rerank_k=50)
-    config = VectaraQueryConfig(
-        k=10,
-        lambda_val=0.005,
-        rerank_config=rerank_config,
-        summary_config=summary_config,
-    )
-    rag = vectara3.as_rag(config)
-    output1 = rag.invoke("what is generative AI?")["answer"]
-    assert len(output1) > 0
-
-    # test Vectara udf reranker
-    summary_config = SummaryConfig(is_enabled=True, max_results=7, response_lang="eng")
-    rerank_config = RerankConfig(
-        reranker="udf", rerank_k=50, user_function="get('$.score')"
-    )
-    config = VectaraQueryConfig(
-        k=10,
-        lambda_val=0.005,
-        rerank_config=rerank_config,
-        summary_config=summary_config,
-    )
-    rag = vectara3.as_rag(config)
-    output1 = rag.invoke("what is generative AI?")["answer"]
-    assert len(output1) > 0
-
-    # test Vectara MMR reranker
+def test_vectara_mmr(vectara3: Vectara) -> None:  # type: ignore[no-untyped-def]
+    # test MMR directly with rerank_config
     summary_config = SummaryConfig(is_enabled=True, max_results=7, response_lang="eng")
     rerank_config = RerankConfig(reranker="mmr", rerank_k=50, mmr_diversity_bias=0.2)
     config = VectaraQueryConfig(

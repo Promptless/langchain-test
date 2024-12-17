@@ -1,5 +1,4 @@
 """Test Baichuan LLM Endpoint."""
-
 from langchain_core.outputs import LLMResult
 
 from langchain_community.llms.baichuan import BaichuanLLM

@@ -1,5 +1,4 @@
 """Test ChatFireworks wrapper."""
-
 import sys
 from typing import cast
 

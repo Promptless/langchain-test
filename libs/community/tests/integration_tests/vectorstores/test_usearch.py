@@ -1,5 +1,4 @@
 """Test USearch functionality."""
-
 import pytest
 from langchain_core.documents import Document
 

@@ -1,5 +1,4 @@
 """Unit tests for StreamlitChatMessageHistory functionality."""
-
 import pytest
 
 test_script = """

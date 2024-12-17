@@ -1,5 +1,4 @@
 """Test manifest integration."""
-
 from langchain_community.llms.manifest import ManifestWrapper
 
 

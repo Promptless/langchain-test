@@ -162,12 +162,7 @@ class AzureCosmosDBNoSqlVectorSearch(VectorStore):
         text_key = "text"
 
         to_insert = [
-            {
-                "id": str(uuid.uuid4()),
-                text_key: t,
-                self._embedding_key: embedding,
-                "metadata": m,
-            }
+            {"id": str(uuid.uuid4()), text_key: t, self._embedding_key: embedding, **m}
             for t, m, embedding in zip(texts, metadatas, embeddings)
         ]
         # insert the documents in CosmosDB No Sql
@@ -189,7 +184,6 @@ class AzureCosmosDBNoSqlVectorSearch(VectorStore):
         cosmos_database_properties: Dict[str, Any],
         database_name: str = "vectorSearchDB",
         container_name: str = "vectorSearchContainer",
-        create_container: bool = True,
         **kwargs: Any,
     ) -> AzureCosmosDBNoSqlVectorSearch:
         if kwargs:
@@ -210,7 +204,6 @@ class AzureCosmosDBNoSqlVectorSearch(VectorStore):
             cosmos_database_properties=cosmos_database_properties,
             database_name=database_name,
             container_name=container_name,
-            create_container=create_container,
         )
 
     @classmethod
@@ -264,83 +257,41 @@ class AzureCosmosDBNoSqlVectorSearch(VectorStore):
         self,
         embeddings: List[float],
         k: int = 4,
-        pre_filter: Optional[Dict] = None,
-        with_embedding: bool = False,
     ) -> List[Tuple[Document, float]]:
-        query = "SELECT "
-
-        # If limit_offset_clause is not specified, add TOP clause
-        if pre_filter is None or pre_filter.get("limit_offset_clause") is None:
-            query += "TOP @limit "
-
-        query += (
-            "c.id, c[@embeddingKey], c.text, c.metadata, "
-            "VectorDistance(c[@embeddingKey], @embeddings) AS SimilarityScore FROM c"
-        )
-
-        # Add where_clause if specified
-        if pre_filter is not None and pre_filter.get("where_clause") is not None:
-            query += " {}".format(pre_filter["where_clause"])
-
-        query += " ORDER BY VectorDistance(c[@embeddingKey], @embeddings)"
-
-        # Add limit_offset_clause if specified
-        if pre_filter is not None and pre_filter.get("limit_offset_clause") is not None:
-            query += " {}".format(pre_filter["limit_offset_clause"])
-        parameters = [
-            {"name": "@limit", "value": k},
-            {"name": "@embeddingKey", "value": self._embedding_key},
-            {"name": "@embeddings", "value": embeddings},
-        ]
-
-        docs_and_scores = []
-
-        items = list(
-            self._container.query_items(
-                query=query, parameters=parameters, enable_cross_partition_query=True
+        query = (
+            "SELECT TOP {} c.id, c.{}, c.text, VectorDistance(c.{}, {}) AS "
+            "SimilarityScore FROM c ORDER BY VectorDistance(c.{}, {})".format(
+                k,
+                self._embedding_key,
+                self._embedding_key,
+                embeddings,
+                self._embedding_key,
+                embeddings,
             )
+        )
+        docs_and_scores = []
+        items = list(
+            self._container.query_items(query=query, enable_cross_partition_query=True)
         )
         for item in items:
             text = item["text"]
-            metadata = item["metadata"]
             score = item["SimilarityScore"]
-            if with_embedding:
-                metadata[self._embedding_key] = item[self._embedding_key]
-            docs_and_scores.append(
-                (Document(page_content=text, metadata=metadata), score)
-            )
+            docs_and_scores.append((Document(page_content=text, metadata=item), score))
         return docs_and_scores
 
     def similarity_search_with_score(
         self,
         query: str,
         k: int = 4,
-        pre_filter: Optional[Dict] = None,
-        with_embedding: bool = False,
     ) -> List[Tuple[Document, float]]:
         embeddings = self._embedding.embed_query(query)
-        docs_and_scores = self._similarity_search_with_score(
-            embeddings=embeddings,
-            k=k,
-            pre_filter=pre_filter,
-            with_embedding=with_embedding,
-        )
+        docs_and_scores = self._similarity_search_with_score(embeddings=embeddings, k=k)
         return docs_and_scores
 
     def similarity_search(
-        self,
-        query: str,
-        k: int = 4,
-        pre_filter: Optional[Dict] = None,
-        with_embedding: bool = False,
-        **kwargs: Any,
+        self, query: str, k: int = 4, **kwargs: Any
     ) -> List[Document]:
-        docs_and_scores = self.similarity_search_with_score(
-            query,
-            k=k,
-            pre_filter=pre_filter,
-            with_embedding=with_embedding,
-        )
+        docs_and_scores = self.similarity_search_with_score(query, k=k)
 
         return [doc for doc, _ in docs_and_scores]
 
@@ -353,18 +304,7 @@ class AzureCosmosDBNoSqlVectorSearch(VectorStore):
         **kwargs: Any,
     ) -> List[Document]:
         # Retrieves the docs with similarity scores
-        pre_filter = {}
-        with_embedding = False
-        if kwargs["pre_filter"]:
-            pre_filter = kwargs["pre_filter"]
-        if kwargs["with_embedding"]:
-            with_embedding = kwargs["with_embedding"]
-        docs = self._similarity_search_with_score(
-            embeddings=embedding,
-            k=fetch_k,
-            pre_filter=pre_filter,
-            with_embedding=with_embedding,
-        )
+        docs = self._similarity_search_with_score(embeddings=embedding, k=fetch_k)
 
         # Re-ranks the docs using MMR
         mmr_doc_indexes = maximal_marginal_relevance(
@@ -386,12 +326,6 @@ class AzureCosmosDBNoSqlVectorSearch(VectorStore):
         **kwargs: Any,
     ) -> List[Document]:
         # compute the embeddings vector from the query string
-        pre_filter = {}
-        with_embedding = False
-        if kwargs["pre_filter"]:
-            pre_filter = kwargs["pre_filter"]
-        if kwargs["with_embedding"]:
-            with_embedding = kwargs["with_embedding"]
         embeddings = self._embedding.embed_query(query)
 
         docs = self.max_marginal_relevance_search_by_vector(
@@ -399,7 +333,5 @@ class AzureCosmosDBNoSqlVectorSearch(VectorStore):
             k=k,
             fetch_k=fetch_k,
             lambda_mult=lambda_mult,
-            pre_filter=pre_filter,
-            with_embedding=with_embedding,
         )
         return docs

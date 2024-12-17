@@ -1,5 +1,4 @@
 """Use a single chain to route an input to one of multiple retrieval qa chains."""
-
 from __future__ import annotations
 
 from typing import Any, Dict, List, Mapping, Optional
@@ -19,7 +18,7 @@ from langchain.chains.router.multi_retrieval_prompt import (
 )
 
 
-class MultiRetrievalQAChain(MultiRouteChain):  # type: ignore[override]
+class MultiRetrievalQAChain(MultiRouteChain):
     """A multi-route chain that uses an LLM router chain to choose amongst retrieval
     qa chains."""
 

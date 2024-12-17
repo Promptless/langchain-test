@@ -1,6 +1,5 @@
 # flake8: noqa
 """Test llamacpp embeddings."""
-
 import os
 from urllib.request import urlretrieve
 

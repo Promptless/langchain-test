@@ -1,5 +1,4 @@
 """Test Bookend AI embeddings."""
-
 from langchain_community.embeddings.bookend import BookendEmbeddings
 
 

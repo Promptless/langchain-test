@@ -2,7 +2,7 @@ from typing import Any, List, Literal
 
 from langchain_core.messages import AIMessage
 from langchain_core.outputs import ChatGeneration
-from pydantic import BaseModel
+from langchain_core.pydantic_v1 import BaseModel
 
 from langchain_anthropic.output_parsers import ToolsOutputParser
 
@@ -33,20 +33,8 @@ class _Foo2(BaseModel):
 def test_tools_output_parser() -> None:
     output_parser = ToolsOutputParser()
     expected = [
-        {
-            "name": "_Foo1",
-            "args": {"bar": 0},
-            "id": "1",
-            "index": 1,
-            "type": "tool_call",
-        },
-        {
-            "name": "_Foo2",
-            "args": {"baz": "a"},
-            "id": "2",
-            "index": 3,
-            "type": "tool_call",
-        },
+        {"name": "_Foo1", "args": {"bar": 0}, "id": "1", "index": 1},
+        {"name": "_Foo2", "args": {"baz": "a"}, "id": "2", "index": 3},
     ]
     actual = output_parser.parse_result(_RESULT)
     assert expected == actual
@@ -68,13 +56,7 @@ def test_tools_output_parser_args_only() -> None:
 
 def test_tools_output_parser_first_tool_only() -> None:
     output_parser = ToolsOutputParser(first_tool_only=True)
-    expected: Any = {
-        "name": "_Foo1",
-        "args": {"bar": 0},
-        "id": "1",
-        "index": 1,
-        "type": "tool_call",
-    }
+    expected: Any = {"name": "_Foo1", "args": {"bar": 0}, "id": "1", "index": 1}
     actual = output_parser.parse_result(_RESULT)
     assert expected == actual
 
@@ -87,27 +69,4 @@ def test_tools_output_parser_pydantic() -> None:
     output_parser = ToolsOutputParser(pydantic_schemas=[_Foo1, _Foo2])
     expected = [_Foo1(bar=0), _Foo2(baz="a")]
     actual = output_parser.parse_result(_RESULT)
-    assert expected == actual
-
-
-def test_tools_output_parser_empty_content() -> None:
-    class ChartType(BaseModel):
-        chart_type: Literal["pie", "line", "bar"]
-
-    output_parser = ToolsOutputParser(
-        first_tool_only=True, pydantic_schemas=[ChartType]
-    )
-    message = AIMessage(
-        "",
-        tool_calls=[
-            {
-                "name": "ChartType",
-                "args": {"chart_type": "pie"},
-                "id": "foo",
-                "type": "tool_call",
-            }
-        ],
-    )
-    actual = output_parser.invoke(message)
-    expected = ChartType(chart_type="pie")
     assert expected == actual

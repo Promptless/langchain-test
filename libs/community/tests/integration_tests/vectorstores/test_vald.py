@@ -1,5 +1,4 @@
 """Test Vald functionality."""
-
 import time
 from typing import List, Optional
 

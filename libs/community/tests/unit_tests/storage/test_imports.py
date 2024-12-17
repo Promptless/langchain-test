@@ -4,7 +4,6 @@ EXPECTED_ALL = [
     "AstraDBStore",
     "AstraDBByteStore",
     "CassandraByteStore",
-    "MongoDBByteStore",
     "MongoDBStore",
     "SQLStore",
     "RedisStore",

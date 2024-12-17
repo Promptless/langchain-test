@@ -1,5 +1,4 @@
 """Test FAISS functionality."""
-
 import datetime
 import math
 import tempfile
@@ -48,15 +47,6 @@ def test_faiss() -> None:
     assert docsearch.docstore.__dict__ == expected_docstore.__dict__
     output = docsearch.similarity_search("foo", k=1)
     assert output == [Document(page_content="foo")]
-
-    # Retriever standard params
-    retriever = docsearch.as_retriever()
-    ls_params = retriever._get_ls_params()
-    assert ls_params == {
-        "ls_retriever_name": "vectorstore",
-        "ls_vector_store_provider": "FAISS",
-        "ls_embedding_provider": "FakeEmbeddings",
-    }
 
 
 @pytest.mark.requires("faiss")

@@ -1,5 +1,4 @@
 """Test Relyt functionality."""
-
 import os
 from typing import List
 

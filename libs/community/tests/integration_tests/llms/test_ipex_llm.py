@@ -1,5 +1,4 @@
 """Test IPEX LLM"""
-
 import os
 from typing import Any
 
@@ -13,18 +12,12 @@ skip_if_no_model_ids = pytest.mark.skipif(
     not model_ids_to_test, reason="TEST_IPEXLLM_MODEL_IDS environment variable not set."
 )
 model_ids_to_test = [model_id.strip() for model_id in model_ids_to_test.split(",")]  # type: ignore
-device = os.getenv("TEST_IPEXLLM_MODEL_DEVICE") or "cpu"
 
 
 def load_model(model_id: str) -> Any:
     llm = IpexLLM.from_model_id(
         model_id=model_id,
-        model_kwargs={
-            "temperature": 0,
-            "max_length": 16,
-            "trust_remote_code": True,
-            "device": device,
-        },
+        model_kwargs={"temperature": 0, "max_length": 16, "trust_remote_code": True},
     )
     return llm
 

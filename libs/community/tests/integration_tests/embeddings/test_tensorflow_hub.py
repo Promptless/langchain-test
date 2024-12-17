@@ -1,5 +1,4 @@
 """Test TensorflowHub embeddings."""
-
 from langchain_community.embeddings import TensorflowHubEmbeddings
 
 

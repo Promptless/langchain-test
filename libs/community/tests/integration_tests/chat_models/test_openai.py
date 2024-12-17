@@ -1,5 +1,4 @@
 """Test ChatOpenAI wrapper."""
-
 from typing import Any, Optional
 
 import pytest
@@ -11,7 +10,7 @@ from langchain_core.outputs import (
     LLMResult,
 )
 from langchain_core.prompts import ChatPromptTemplate
-from pydantic import BaseModel, Field
+from langchain_core.pydantic_v1 import BaseModel, Field
 
 from langchain_community.chat_models.openai import ChatOpenAI
 from tests.unit_tests.callbacks.fake_callback_handler import FakeCallbackHandler

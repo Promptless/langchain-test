@@ -1,5 +1,4 @@
 """Integration test for llm-based relevant doc filtering."""
-
 from langchain.retrievers.document_compressors import LLMChainFilter
 from langchain_core.documents import Document
 

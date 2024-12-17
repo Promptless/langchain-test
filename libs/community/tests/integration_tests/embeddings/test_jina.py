@@ -1,5 +1,4 @@
 """Test jina embeddings."""
-
 from langchain_community.embeddings.jina import JinaEmbeddings
 
 

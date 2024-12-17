@@ -1,5 +1,4 @@
 """Test Zilliz functionality."""
-
 from typing import List, Optional
 
 from langchain_core.documents import Document

@@ -1,5 +1,4 @@
 """Test AzureChatOpenAI wrapper."""
-
 import os
 from typing import Any
 

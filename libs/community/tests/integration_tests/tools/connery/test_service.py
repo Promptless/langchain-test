@@ -1,5 +1,4 @@
 """Integration test for Connery API Wrapper."""
-
 from langchain_community.tools.connery import ConneryService
 
 

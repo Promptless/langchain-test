@@ -1,5 +1,4 @@
 """Implement integration tests for Redis storage."""
-
 import os
 import typing
 import uuid

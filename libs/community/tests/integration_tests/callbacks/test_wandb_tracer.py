@@ -1,5 +1,4 @@
 """Integration tests for the langchain tracer module."""
-
 import asyncio
 import os
 

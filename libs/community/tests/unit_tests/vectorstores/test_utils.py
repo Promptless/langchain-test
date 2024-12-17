@@ -1,5 +1,4 @@
 """Test vector store utility functions."""
-
 import numpy as np
 from langchain_core.documents import Document
 

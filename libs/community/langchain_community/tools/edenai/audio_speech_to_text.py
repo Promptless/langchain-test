@@ -3,22 +3,18 @@ from __future__ import annotations
 import json
 import logging
 import time
-from typing import List, Optional, Type
+from typing import List, Optional
 
 import requests
 from langchain_core.callbacks import CallbackManagerForToolRun
-from pydantic import BaseModel, Field, HttpUrl, validator
+from langchain_core.pydantic_v1 import validator
 
 from langchain_community.tools.edenai.edenai_base_tool import EdenaiTool
 
 logger = logging.getLogger(__name__)
 
 
-class SpeechToTextInput(BaseModel):
-    query: HttpUrl = Field(description="url of the audio to analyze")
-
-
-class EdenAiSpeechToTextTool(EdenaiTool):  # type: ignore[override, override, override]
+class EdenAiSpeechToTextTool(EdenaiTool):
     """Tool that queries the Eden AI Speech To Text API.
 
     for api reference check edenai documentation:
@@ -27,15 +23,17 @@ class EdenAiSpeechToTextTool(EdenaiTool):  # type: ignore[override, override, ov
     To use, you should have
     the environment variable ``EDENAI_API_KEY`` set with your API token.
     You can find your token here: https://app.edenai.run/admin/account/settings
+
     """
 
+    edenai_api_key: Optional[str] = None
+
     name: str = "edenai_speech_to_text"
-    description: str = (
+    description = (
         "A wrapper around edenai Services speech to text "
         "Useful for when you have to convert audio to text."
         "Input should be a url to an audio file."
     )
-    args_schema: Type[BaseModel] = SpeechToTextInput
     is_async: bool = True
 
     language: Optional[str] = "en"

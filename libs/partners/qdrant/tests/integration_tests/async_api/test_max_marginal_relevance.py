@@ -1,6 +1,6 @@
 from typing import Optional
 
-import pytest  # type: ignore[import-not-found]
+import pytest
 from langchain_core.documents import Document
 
 from langchain_qdrant import Qdrant

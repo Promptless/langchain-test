@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 import warnings
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 from langchain_core.documents import Document
@@ -16,25 +16,64 @@ IMPORT_OPENSEARCH_PY_ERROR = (
     "Could not import OpenSearch. Please install it with `pip install opensearch-py`."
 )
 IMPORT_ASYNC_OPENSEARCH_PY_ERROR = """
-Could not import AsyncOpenSearch.
+Could not import AsyncOpenSearch. 
 Please install it with `pip install opensearch-py`."""
 
 SCRIPT_SCORING_SEARCH = "script_scoring"
 PAINLESS_SCRIPTING_SEARCH = "painless_scripting"
 MATCH_ALL_QUERY = {"match_all": {}}  # type: Dict
 
-if TYPE_CHECKING:
-    from opensearchpy import AsyncOpenSearch, OpenSearch
 
-
-def _get_opensearch_client(opensearch_url: str, **kwargs: Any) -> OpenSearch:
-    """Get OpenSearch client from the opensearch_url, otherwise raise error."""
+def _import_opensearch() -> Any:
+    """Import OpenSearch if available, otherwise raise error."""
     try:
         from opensearchpy import OpenSearch
-
-        client = OpenSearch(opensearch_url, **kwargs)
     except ImportError:
         raise ImportError(IMPORT_OPENSEARCH_PY_ERROR)
+    return OpenSearch
+
+
+def _import_async_opensearch() -> Any:
+    """Import AsyncOpenSearch if available, otherwise raise error."""
+    try:
+        from opensearchpy import AsyncOpenSearch
+    except ImportError:
+        raise ImportError(IMPORT_ASYNC_OPENSEARCH_PY_ERROR)
+    return AsyncOpenSearch
+
+
+def _import_bulk() -> Any:
+    """Import bulk if available, otherwise raise error."""
+    try:
+        from opensearchpy.helpers import bulk
+    except ImportError:
+        raise ImportError(IMPORT_OPENSEARCH_PY_ERROR)
+    return bulk
+
+
+def _import_async_bulk() -> Any:
+    """Import async_bulk if available, otherwise raise error."""
+    try:
+        from opensearchpy.helpers import async_bulk
+    except ImportError:
+        raise ImportError(IMPORT_ASYNC_OPENSEARCH_PY_ERROR)
+    return async_bulk
+
+
+def _import_not_found_error() -> Any:
+    """Import not found error if available, otherwise raise error."""
+    try:
+        from opensearchpy.exceptions import NotFoundError
+    except ImportError:
+        raise ImportError(IMPORT_OPENSEARCH_PY_ERROR)
+    return NotFoundError
+
+
+def _get_opensearch_client(opensearch_url: str, **kwargs: Any) -> Any:
+    """Get OpenSearch client from the opensearch_url, otherwise raise error."""
+    try:
+        opensearch = _import_opensearch()
+        client = opensearch(opensearch_url, **kwargs)
     except ValueError as e:
         raise ImportError(
             f"OpenSearch client string provided is not in proper format. "
@@ -43,14 +82,11 @@ def _get_opensearch_client(opensearch_url: str, **kwargs: Any) -> OpenSearch:
     return client
 
 
-def _get_async_opensearch_client(opensearch_url: str, **kwargs: Any) -> AsyncOpenSearch:
+def _get_async_opensearch_client(opensearch_url: str, **kwargs: Any) -> Any:
     """Get AsyncOpenSearch client from the opensearch_url, otherwise raise error."""
     try:
-        from opensearchpy import AsyncOpenSearch
-
-        client = AsyncOpenSearch(opensearch_url, **kwargs)
-    except ImportError:
-        raise ImportError(IMPORT_ASYNC_OPENSEARCH_PY_ERROR)
+        async_opensearch = _import_async_opensearch()
+        client = async_opensearch(opensearch_url, **kwargs)
     except ValueError as e:
         raise ImportError(
             f"AsyncOpenSearch client string provided is not in proper format. "
@@ -91,7 +127,7 @@ def _is_aoss_enabled(http_auth: Any) -> bool:
 
 
 def _bulk_ingest_embeddings(
-    client: OpenSearch,
+    client: Any,
     index_name: str,
     embeddings: List[List[float]],
     texts: Iterable[str],
@@ -106,19 +142,16 @@ def _bulk_ingest_embeddings(
     """Bulk Ingest Embeddings into given index."""
     if not mapping:
         mapping = dict()
-    try:
-        from opensearchpy.exceptions import NotFoundError
-        from opensearchpy.helpers import bulk
-    except ImportError:
-        raise ImportError(IMPORT_OPENSEARCH_PY_ERROR)
 
+    bulk = _import_bulk()
+    not_found_error = _import_not_found_error()
     requests = []
     return_ids = []
     mapping = mapping
 
     try:
         client.indices.get(index=index_name)
-    except NotFoundError:
+    except not_found_error:
         client.indices.create(index=index_name, body=mapping)
 
     for i, text in enumerate(texts):
@@ -144,7 +177,7 @@ def _bulk_ingest_embeddings(
 
 
 async def _abulk_ingest_embeddings(
-    client: AsyncOpenSearch,
+    client: Any,
     index_name: str,
     embeddings: List[List[float]],
     texts: Iterable[str],
@@ -160,18 +193,14 @@ async def _abulk_ingest_embeddings(
     if not mapping:
         mapping = dict()
 
-    try:
-        from opensearchpy.exceptions import NotFoundError
-        from opensearchpy.helpers import async_bulk
-    except ImportError:
-        raise ImportError(IMPORT_ASYNC_OPENSEARCH_PY_ERROR)
-
+    async_bulk = _import_async_bulk()
+    not_found_error = _import_not_found_error()
     requests = []
     return_ids = []
 
     try:
         await client.indices.get(index=index_name)
-    except NotFoundError:
+    except not_found_error:
         await client.indices.create(index=index_name, body=mapping)
 
     for i, text in enumerate(texts):
@@ -201,7 +230,7 @@ async def _abulk_ingest_embeddings(
 def _default_scripting_text_mapping(
     dim: int,
     vector_field: str = "vector_field",
-) -> Dict[str, Any]:
+) -> Dict:
     """For Painless Scripting or Script Scoring,the default mapping to create index."""
     return {
         "mappings": {
@@ -220,7 +249,7 @@ def _default_text_mapping(
     ef_construction: int = 512,
     m: int = 16,
     vector_field: str = "vector_field",
-) -> Dict[str, Any]:
+) -> Dict:
     """For Approximate k-NN Search, this is the default mapping to create index."""
     return {
         "settings": {"index": {"knn": True, "knn.algo_param.ef_search": ef_search}},
@@ -246,7 +275,7 @@ def _default_approximate_search_query(
     k: int = 4,
     vector_field: str = "vector_field",
     score_threshold: Optional[float] = 0.0,
-) -> Dict[str, Any]:
+) -> Dict:
     """For Approximate k-NN Search, this is the default query."""
     return {
         "size": k,
@@ -262,7 +291,7 @@ def _approximate_search_query_with_boolean_filter(
     vector_field: str = "vector_field",
     subquery_clause: str = "must",
     score_threshold: Optional[float] = 0.0,
-) -> Dict[str, Any]:
+) -> Dict:
     """For Approximate k-NN Search, with Boolean Filter."""
     return {
         "size": k,
@@ -284,7 +313,7 @@ def _approximate_search_query_with_efficient_filter(
     k: int = 4,
     vector_field: str = "vector_field",
     score_threshold: Optional[float] = 0.0,
-) -> Dict[str, Any]:
+) -> Dict:
     """For Approximate k-NN Search, with Efficient Filter for Lucene and
     Faiss Engines."""
     search_query = _default_approximate_search_query(
@@ -301,7 +330,7 @@ def _default_script_query(
     pre_filter: Optional[Dict] = None,
     vector_field: str = "vector_field",
     score_threshold: Optional[float] = 0.0,
-) -> Dict[str, Any]:
+) -> Dict:
     """For Script Scoring Search, this is the default query."""
 
     if not pre_filter:
@@ -347,7 +376,7 @@ def _default_painless_scripting_query(
     pre_filter: Optional[Dict] = None,
     vector_field: str = "vector_field",
     score_threshold: Optional[float] = 0.0,
-) -> Dict[str, Any]:
+) -> Dict:
     """For Painless Scripting Search, this is the default query."""
 
     if not pre_filter:
@@ -663,10 +692,7 @@ class OpenSearchVectorSearch(VectorStore):
             refresh_indices: Whether to refresh the index
                             after deleting documents. Defaults to True.
         """
-        try:
-            from opensearchpy.helpers import bulk
-        except ImportError:
-            raise ImportError(IMPORT_OPENSEARCH_PY_ERROR)
+        bulk = _import_bulk()
 
         body = []
 
@@ -706,23 +732,6 @@ class OpenSearchVectorSearch(VectorStore):
         return not any(
             item.get("delete", {}).get("error") for item in response["items"]
         )
-
-    @staticmethod
-    def _identity_fn(score: float) -> float:
-        return score
-
-    def _select_relevance_score_fn(self) -> Callable[[float], float]:
-        """
-        The 'correct' relevance function
-        may differ depending on a few things, including:
-        - the distance / similarity metric used by the VectorStore
-        - the scale of your embeddings (OpenAI's are unit normed. Many others are not!)
-        - embedding dimensionality
-        - etc.
-
-        Vectorstores should define their own selection based method of relevance.
-        """
-        return self._identity_fn
 
     def similarity_search(
         self,
@@ -876,7 +885,6 @@ class OpenSearchVectorSearch(VectorStore):
                         if metadata_field == "*" or metadata_field not in hit["_source"]
                         else hit["_source"][metadata_field]
                     ),
-                    id=hit["_id"],
                 ),
                 hit["_score"],
             )
@@ -1074,7 +1082,6 @@ class OpenSearchVectorSearch(VectorStore):
             Document(
                 page_content=results[i]["_source"][text_field],
                 metadata=results[i]["_source"][metadata_field],
-                id=results[i]["_id"],
             )
             for i in mmr_selected
         ]

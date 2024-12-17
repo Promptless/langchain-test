@@ -1,5 +1,4 @@
 """Test caching for LLMs and ChatModels."""
-
 import sqlite3
 from typing import Dict, Generator, List, Union
 
